@@ -62,9 +62,6 @@ class Vec3 {
         }
 };
 
-using point3 = Vec3;   // 3D point
-using color = Vec3;    // RGB color
-
 // Utility functions
 inline std::ostream& operator<<(std::ostream &out, const Vec3 &v) {
     return out << v[0] << ' ' << v[1] << ' ' << v[2];
