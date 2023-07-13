@@ -33,4 +33,12 @@ inline std::ostream& operator<<(std::ostream &out, const Colour &c) {
     return out;
 }
 
+inline Colour operator+(const Colour &c1, const Colour &c2) {
+    return Colour(c1.r() + c2.r(), c1.g() + c2.g(), c1.b() + c2.b());
+}
+
+inline Colour operator*(const double t, const Colour &c) {
+    return Colour(t * c.r(), t * c.g(), t * c.b());
+}
+
 #endif

@@ -1,1 +1,1 @@
-install_headers('vec3.h', 'colour.h', 'ray.h')
+install_headers('vec3.h', 'colour.h', 'ray.h', 'hittable.h', 'sphere.h')
