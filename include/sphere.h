@@ -1,6 +1,8 @@
 #ifndef SPHERE_H
 #define SPHERE_H
 
+#include <cmath>
+
 #include "hittable.h"
 #include "vec3.h"
 
@@ -17,16 +19,30 @@ class Sphere : public Hittable {
 
 bool Sphere::hit(const Ray& r, double t_min, double t_max, HitInfo& info) const {
     Vec3 ray_to_sphere = r.source() - center;
-    double a = dot(r.direction(), r.direction());
-    double b = 2 * dot(r.direction(), ray_to_sphere);
-    double c = dot(ray_to_sphere, ray_to_sphere) - radius * radius;
-    double discriminant = b * b - 4 * a * c;
+    double a = r.direction().length_squared();
+    double half_b = dot(r.direction(), ray_to_sphere);
+    double c = ray_to_sphere.length_squared() - radius * radius;
+    double discriminant = half_b * half_b - a * c;
 
     if (discriminant < 0) {
         return false;
-    } else {
-        return true;
     }
+
+    // Find the roots
+    double sqrt_discriminant = std::sqrt(discriminant);
+    double root = (-half_b - sqrt_discriminant) / a;
+    if (root < t_min || root > t_max) {
+        root = (-half_b + sqrt_discriminant) / a;
+        if (root < t_min || root > t_max) {
+            return false;
+        }
+    }
+
+    info.t = root;
+    info.contact = r.at(root);
+    info.normal = (center - info.contact) / radius; // Normalize the normal vector
+
+    return true;
 }
 
 #endif

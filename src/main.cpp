@@ -1,16 +1,21 @@
-#include <iostream>
 #include <cmath>
+#include <iostream>
 
+#include "camera.h"
 #include "colour.h"
+#include "hittable_list.h"
 #include "ray.h"
 #include "sphere.h"
+#include "utility.h"
 #include "vec3.h"
 
-Colour ray_colour(const Ray& r) {
-    Sphere ball(Vec3(0,0,1), 0.5);
+Colour ray_colour(const HittableList& world, const Ray& r) {
     HitInfo hitInfo;
-    if (ball.hit(r, 0, 2, hitInfo)) {
-        return Colour(1, 0, 0);
+    if (world.hit(r, 0, kInfinity, hitInfo)) {
+        double r = 0.5 * hitInfo.normal.x() + 0.5;
+        double g = - 0.5 * hitInfo.normal.y() + 0.5;
+        double b = 0.5 * hitInfo.normal.z() + 0.5;
+        return Colour(r, g, b);
     }
     Vec3 unit_direction = normalize(r.direction());
     double t = 0.5 * (unit_direction.y() + 1);
@@ -22,17 +27,18 @@ int main() {
     const double aspect_ratio = 16.0 / 9.0;
     const int image_height = 400;
     const int image_width = static_cast<int>(aspect_ratio * image_height);
+    const int samples_per_pixel = 100;
+
+    // Creating our world
+    HittableList world;
+    world.add(std::make_shared<Sphere>(Vec3(0,0,1), 0.5));
+    world.add(std::make_shared<Sphere>(Vec3(0,-100.5,0), 100));
 
     // Camera
     // Using convention z-axis positive going "in" to the screen
     const double viewport_height = 2.0;
-    const double viewport_width = aspect_ratio * viewport_height;
     const double focal_length = 1.0;
-
-    const Vec3 origin(0, 0, 0);
-    const Vec3 viewport_horizontal(viewport_width, 0, 0);
-    const Vec3 viewport_vertical(0, viewport_height, 0);
-    const Vec3 bottom_left_corner = origin + Vec3(0, 0, focal_length) - viewport_horizontal / 2 - viewport_vertical / 2; 
+    Camera camera(aspect_ratio, viewport_height, focal_length);
 
     // Rendering
     std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
@@ -40,10 +46,14 @@ int main() {
     for (int j = image_height - 1; j >= 0; --j) {
         std::cerr << "\rLines remaining: " << j << ' ' << std::flush;
         for (int i = 0; i < image_width; ++i) {
-            double u = double(i) / (image_width - 1);
-            double v = double(j) / (image_height - 1);
-            Ray r(origin, bottom_left_corner + u * viewport_horizontal + v * viewport_vertical);
-            Colour pixel_colour = ray_colour(r);
+            Colour pixel_colour(0, 0, 0);
+            for (int s = 0; s < samples_per_pixel; ++s) {
+                double u = (i + random_double()) / (image_width - 1);
+                double v = (j + random_double()) / (image_height - 1);
+                Ray r = camera.get_ray(u, v);
+                pixel_colour += ray_colour(world, r);
+            }
+            pixel_colour /= samples_per_pixel;
             std::cout << pixel_colour;;
         }
     }

@@ -1,1 +1,11 @@
-install_headers('vec3.h', 'colour.h', 'ray.h', 'hittable.h', 'sphere.h')
+headers = [
+    'camera.h',
+    'colour.h',
+    'hittable_list.h',
+    'hittable.h',
+    'ray.h',
+    'sphere.h',
+    'utility.h',
+    'vec3.h'
+]
+install_headers(headers)

@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+#include "utility.h"
+
 class Colour {
     // Class for RGB Colours
     double red, green, blue;
@@ -22,14 +24,28 @@ class Colour {
         double r() const { return red; }
         double g() const { return green; }
         double b() const { return blue; }
+
+        Colour operator+=(const Colour& c) {
+            red += c.r();
+            green += c.g();
+            blue += c.b();
+            return *this;
+        }
+
+        Colour operator/=(double a) {
+            red /= a;
+            green /= a;
+            blue /= a;
+            return *this;
+        }
 };
 
 // Utility functions
 inline std::ostream& operator<<(std::ostream &out, const Colour &c) {
     // Write the translated [0,255] value of each color component.
-    out << static_cast<int>(255.999 * c.r()) << ' '
-        << static_cast<int>(255.999 * c.g()) << ' '
-        << static_cast<int>(255.999 * c.b()) << '\n';
+    out << static_cast<int>(256 * clamp(c.r(), 0, 0.999)) << ' '
+        << static_cast<int>(256 * clamp(c.g(), 0, 0.999)) << ' '
+        << static_cast<int>(256 * clamp(c.b(), 0, 0.999)) << '\n';
     return out;
 }
 
